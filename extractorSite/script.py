@@ -25,7 +25,7 @@ phone_regex = r'(?:0[1-9](?:[\s.-]?\d{2}){4})|(?:\+33\s?(?:\(0\))?[1-9](?:[\s.-]
 
 def find_contact_info(page_content):
     emails = re.findall(email_regex, page_content)
-    filtered_emails = [email for email in emails if not any(ext in email for ext in ['.jpg', '.jpeg', '.png', '.webp'])]
+    filtered_emails = [email for email in emails if not any(ext in email for ext in ['.jpg', '.jpeg', '.png', '.webp', '.svg'])]
     phones = re.findall(phone_regex, page_content)
     return filtered_emails[0] if filtered_emails else "Non trouvé", phones[0] if phones else "Non trouvé"
 
