@@ -11,7 +11,7 @@ def extract_data(url):
     options = webdriver.EdgeOptions()
     # Activer le mode sans tête
     options.add_argument('--headless')
-    options.add_argument('--disable-gpu')  # Parfois nécessaire selon la version et l'environnement
+    options.add_argument('--disable-gpu')
 
     driver = webdriver.Edge(service=service, options=options)
 
@@ -19,22 +19,30 @@ def extract_data(url):
         driver.get(url)
 
         WebDriverWait(driver, 20).until(
-            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".result-item .title span"))
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.result-item"))
         )
 
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
 
         file_path = 'C:\\Users\\Master\\Desktop\\ExtractNomSite\\resultats.txt'
+        titles_set = set()  # Utilisation d'un ensemble pour stocker les titres et éliminer les doublons
+        divs = soup.select("div.result-item")
+        for div in divs:
+            if "Entreprise individuelle" not in div.text:
+                titles = div.select(".title span")
+                for title in titles:
+                    titles_set.add(title.text.strip())
+        
         with open(file_path, 'a', encoding='utf-8') as file:
-            titles = soup.select(".result-item .title span")
-            for title in titles:
-                file.write(title.text.strip() + '\n')
+            for title in titles_set:
+                file.write(title + '\n')
+                
     finally:
         driver.quit()
 
 # URL de départ
-base_url = "https://annuaire-entreprises.data.gouv.fr/rechercher?terme=&etat=A&naf=13.20Z&page="
+base_url = "https://annuaire-entreprises.data.gouv.fr/rechercher?terme=&etat=A&naf=31.09A&page="
 page_number = 1
 
 while True:
@@ -47,3 +55,4 @@ while True:
         break
     else:
         page_number += 1
+
